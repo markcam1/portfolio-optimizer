@@ -1,0 +1,56 @@
+appId: com.portfoliooptimizer.app
+productName: Portfolio Optimizer
+copyright: Copyright © 2025
+
+directories:
+  buildResources: resources
+  output: dist-electron
+
+files:
+  - out/**
+  - "!**/node_modules/**"
+  - "!**/*.map"
+
+extraResources:
+  - from: backend/venv/
+    to: venv/
+    filter:
+      - "**/*"
+      - "!**/__pycache__/**"
+      - "!**/*.pyc"
+      - "!**/*.pyo"
+  - from: backend/
+    to: backend/
+    filter:
+      - "*.py"
+      - "routers/**/*.py"
+      - "services/**/*.py"
+      - "models/**/*.py"
+      - "utils/**/*.py"
+      - "!venv/**"
+      - "!__pycache__/**"
+      - "!**/*.pyc"
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icons/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  installerIcon: resources/icons/icon.ico
+  uninstallerIcon: resources/icons/icon.ico
+
+mac:
+  target: dmg
+  icon: resources/icons/icon.icns
+  category: public.app-category.finance
+
+linux:
+  target: AppImage
+  icon: resources/icons/icon.png
+  category: Finance
