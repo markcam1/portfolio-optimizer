@@ -14,7 +14,7 @@ Upload a portfolio, pick a risk model, and get optimal weights in seconds.
 - **CSV upload** — import your asset list from any brokerage export.
 - **Results dashboard** — optimal weights (pie chart + table), Sharpe ratio, expected return, portfolio risk, and per-asset risk contribution.
 - **Run history** — every optimization is saved locally as JSON and accessible from the dashboard.
-- **PDF export** — coming in Phase 2 (button is present; report structure is already in place).
+- **PDF export** — download a full report (metrics, allocation pie chart, weights table, risk contribution chart) directly from the Results page.
 
 ---
 
@@ -155,11 +155,21 @@ portfolio-optimizer/
 
 ### Windows installer (NSIS)
 
-```bash
+#### Before you build — replace the placeholder icon
+
+`resources/icons/icon.ico` currently contains a 32×32 solid-color placeholder so that `electron-builder` does not fail. Replace it with your real icon before shipping:
+
+1. Create a proper `.ico` file at 256×256 (also include 128, 64, 48, 32, 16 px sizes for best results). Tools: [GIMP](https://www.gimp.org), [IcoFX](https://icofx.ro), or any online ICO converter.
+2. Overwrite `resources/icons/icon.ico` with the new file.
+3. If you also target **macOS**, add `resources/icons/icon.icns`; for **Linux**, add `resources/icons/icon.png` (512×512 recommended).
+
+#### Build the installer
+
+```powershell
 npm run pack
 ```
 
-Output: `dist-electron/Portfolio Optimizer Setup x.x.x.exe`
+Output: `dist-electron\Portfolio Optimizer Setup x.x.x.exe`
 
 The installer bundles the full Python venv — end users do **not** need Python installed.
 
@@ -183,7 +193,7 @@ All data stays on your machine:
 ## Roadmap
 
 - [x] Phase 1 — Core optimization (MV, CVaR, MDD + 21 more), results dashboard, run history
-- [ ] Phase 2 — PDF report download (endpoint stub and data structure already in place)
+- [x] Phase 2 — PDF report download (reportlab + matplotlib; pie chart, bar chart, tables)
 - [ ] Phase 3 — Efficient frontier chart, multiple solver support
 - [ ] Phase 4 — Black-Litterman views, factor model support
 - [ ] Phase 5 — Multi-source data (Alpha Vantage, Quandl, manual CSV price upload)

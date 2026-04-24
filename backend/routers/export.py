@@ -1,7 +1,10 @@
 import logging
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel
+
+from services.run_store import load_run
+from services.pdf_generator import generate_pdf
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -13,12 +16,16 @@ class ExportPdfRequest(BaseModel):
 
 @router.post("/export/pdf")
 def export_pdf(req: ExportPdfRequest):
-    """Phase 2 stub — PDF generation not yet implemented."""
-    logger.info("PDF export requested for run %s (not yet implemented)", req.run_id)
-    return JSONResponse(
-        status_code=501,
-        content={
-            "error": "not_implemented",
-            "message": "PDF export is coming in the next release."
-        }
+    result = load_run(req.run_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+
+    logger.info("Generating PDF for run %s", req.run_id)
+    pdf_bytes = generate_pdf(result)
+
+    filename = f"portfolio-report-{req.run_id[:8]}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )

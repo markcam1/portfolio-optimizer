@@ -15,5 +15,13 @@ export async function getRun(runId: string): Promise<OptimizationResult> {
 
 export async function requestPdfExport(runId: string): Promise<void> {
   const client = await getClient()
-  await client.post('/api/export/pdf', { run_id: runId })
+  const res = await client.post('/api/export/pdf', { run_id: runId }, { responseType: 'blob' })
+  const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `portfolio-report-${runId.slice(0, 8)}.pdf`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }

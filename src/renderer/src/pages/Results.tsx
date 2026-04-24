@@ -36,12 +36,9 @@ export default function Results() {
     setPdfLoading(true)
     try {
       await requestPdfExport(result.run_id)
+      addToast({ type: 'success', title: 'PDF Downloaded', message: 'Report saved to your downloads folder.' })
     } catch {
-      addToast({
-        type: 'info',
-        title: 'PDF Export — Coming Soon',
-        message: 'PDF reports will be available in the next release.'
-      })
+      addToast({ type: 'error', title: 'PDF Export Failed', message: 'Could not generate the report. Please try again.' })
     } finally {
       setPdfLoading(false)
     }

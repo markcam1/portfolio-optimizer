@@ -1,0 +1,13 @@
+node_modules/
+out/
+dist-electron/
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+*.log
+.env
+dev-data/
+
+# markdown files
+CLAUDE.md
