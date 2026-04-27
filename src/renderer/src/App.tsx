@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import AppShell from './components/layout/AppShell'
 import Home from './pages/Home'
@@ -20,7 +20,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       {!accepted && <DisclaimerModal onAccept={() => setAccepted(true)} />}
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={<AppShell />}>
             <Route index element={<Home />} />
@@ -29,7 +29,7 @@ export default function App() {
             <Route path="results" element={<Results />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   )
 }

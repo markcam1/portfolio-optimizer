@@ -29,7 +29,7 @@ Upload a portfolio, pick a risk model, and get optimal weights in seconds.
 | Backend | FastAPI + Uvicorn (local subprocess) |
 | Optimization | Riskfolio-Lib 7.x |
 | Market data | yfinance (Yahoo Finance) |
-| Packaging | electron-builder (NSIS for Windows) |
+| Packaging | electron-builder (NSIS on Windows, AppImage on Linux) |
 
 The frontend and backend communicate over HTTP on a dynamically assigned localhost port — no external services, no cloud, fully offline.
 
@@ -153,27 +153,31 @@ portfolio-optimizer/
 
 ## Building for Distribution
 
-### Windows installer (NSIS)
-
-#### Before you build — replace the placeholder icon
-
-`resources/icons/icon.ico` currently contains a 32×32 solid-color placeholder so that `electron-builder` does not fail. Replace it with your real icon before shipping:
-
-1. Create a proper `.ico` file at 256×256 (also include 128, 64, 48, 32, 16 px sizes for best results). Tools: [GIMP](https://www.gimp.org), [IcoFX](https://icofx.ro), or any online ICO converter.
-2. Overwrite `resources/icons/icon.ico` with the new file.
-3. If you also target **macOS**, add `resources/icons/icon.icns`; for **Linux**, add `resources/icons/icon.png` (512×512 recommended).
-
-#### Build the installer
-
-```powershell
+```bash
 npm run pack
 ```
 
-Output: `dist-electron\Portfolio Optimizer Setup x.x.x.exe`
+electron-builder detects the current OS and produces:
 
-The installer bundles the full Python venv — end users do **not** need Python installed.
+| Platform | Output |
+|---|---|
+| Windows | `dist-electron/Portfolio Optimizer Setup x.x.x.exe` (NSIS installer) |
+| Linux | `dist-electron/Portfolio Optimizer-x.x.x.AppImage` |
+| macOS | `dist-electron/Portfolio Optimizer-x.x.x.dmg` |
+
+The build bundles the full Python venv — end users do **not** need Python installed.
 
 > **Note:** The Python venv must be built on the same OS as the target platform, since some packages (numpy, cvxpy) include platform-specific compiled extensions.
+
+### App icon
+
+Icons are in `resources/icons/`:
+
+- `icon.ico` — multi-size (256/128/64/48/32/16 px), used by Windows and the Electron window
+- `icon.png` — 256×256 RGBA, used by Linux
+- For **macOS** add `icon.icns`
+
+To replace the icon, overwrite those files before running `npm run pack`.
 
 ---
 

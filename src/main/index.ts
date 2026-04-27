@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow, dialog, globalShortcut } from 'electron'
 import path from 'path'
 import { ensureDirs, getAppDataDir } from './pathUtils'
 import { findFreePort, startPython, stopPython } from './pythonManager'
@@ -28,7 +28,10 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => mainWindow?.show())
-  mainWindow.on('closed', () => { mainWindow = null })
+  mainWindow.on('closed', () => {
+    globalShortcut.unregisterAll()
+    mainWindow = null
+  })
 
   if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
@@ -36,6 +39,10 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
+
+  globalShortcut.register('F12', () => {
+    mainWindow?.webContents.toggleDevTools()
+  })
 }
 
 app.whenReady().then(async () => {
