@@ -165,9 +165,9 @@ electron-builder detects the current OS and produces:
 | Linux | `dist-electron/Portfolio Optimizer-x.x.x.AppImage` |
 | macOS | `dist-electron/Portfolio Optimizer-x.x.x.dmg` |
 
-The build bundles the full Python venv — end users do **not** need Python installed.
+The build bundles a self-contained Python executable produced by PyInstaller — end users do **not** need Python installed.
 
-> **Note:** The Python venv must be built on the same OS as the target platform, since some packages (numpy, cvxpy) include platform-specific compiled extensions.
+> **Note:** The Python environment must be built on the same OS as the target platform, since packages like numpy and cvxpy include platform-specific compiled extensions. Run `bash scripts/build-python-venv.sh` before `npm run pack` if you haven't already — it creates both the dev venv and the PyInstaller bundle.
 
 ### App icon
 
