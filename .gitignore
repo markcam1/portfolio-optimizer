@@ -2,6 +2,9 @@ node_modules/
 out/
 dist-electron/
 backend/venv/
+backend/build/
+backend/dist/
+backend/backend.spec
 backend/__pycache__/
 backend/**/__pycache__/
 backend/**/*.pyc

@@ -12,24 +12,10 @@ files:
   - "!**/*.map"
 
 extraResources:
-  - from: backend/venv/
-    to: venv/
-    filter:
-      - "**/*"
-      - "!**/__pycache__/**"
-      - "!**/*.pyc"
-      - "!**/*.pyo"
-  - from: backend/
+  - from: backend/dist/backend/
     to: backend/
     filter:
-      - "*.py"
-      - "routers/**/*.py"
-      - "services/**/*.py"
-      - "models/**/*.py"
-      - "utils/**/*.py"
-      - "!venv/**"
-      - "!__pycache__/**"
-      - "!**/*.pyc"
+      - "**/*"
 
 win:
   target:

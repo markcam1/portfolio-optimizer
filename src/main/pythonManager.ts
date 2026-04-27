@@ -28,10 +28,11 @@ export function findFreePort(): Promise<number> {
 
 function getPythonBinary(): string {
   if (app.isPackaged) {
+    // PyInstaller one-dir bundle; executable lives alongside its _internal/ deps
     const base = process.resourcesPath
     return process.platform === 'win32'
-      ? path.join(base, 'venv', 'Scripts', 'python.exe')
-      : path.join(base, 'venv', 'bin', 'python')
+      ? path.join(base, 'backend', 'backend.exe')
+      : path.join(base, 'backend', 'backend')
   }
   // Development: __dirname is out/main/, so two levels up reaches project root
   const projectRoot = path.join(__dirname, '..', '..')
@@ -91,9 +92,10 @@ export async function startPython(port: number, appDataPath: string): Promise<vo
     PYTHONUNBUFFERED: '1'
   }
 
-  // When packaged, run as a module from the resources dir; in dev, run directly
+  // Packaged: PyInstaller binary reads port from argv[1].
+  // Dev: invoke uvicorn via the venv python.
   const args = app.isPackaged
-    ? ['-m', 'uvicorn', 'main:app', '--host', '127.0.0.1', '--port', String(port), '--no-access-log']
+    ? [String(port)]
     : ['-m', 'uvicorn', 'main:app', '--host', '127.0.0.1', '--port', String(port), '--no-access-log']
 
   // In packaged mode uvicorn needs to find `main.py` in backend/

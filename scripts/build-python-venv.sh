@@ -24,6 +24,34 @@ if [ -d "$RISKFOLIO_DIR" ]; then
   venv/bin/pip install -e "$RISKFOLIO_DIR"
 fi
 
+echo "==> Installing PyInstaller ..."
+venv/bin/pip install pyinstaller
+
+echo "==> Building standalone backend executable ..."
+venv/bin/pyinstaller \
+  --name backend \
+  --onedir \
+  --noconfirm \
+  --distpath dist \
+  --workpath build \
+  --hidden-import uvicorn.logging \
+  --hidden-import uvicorn.loops \
+  --hidden-import uvicorn.loops.auto \
+  --hidden-import uvicorn.loops.asyncio \
+  --hidden-import uvicorn.protocols \
+  --hidden-import uvicorn.protocols.http \
+  --hidden-import uvicorn.protocols.http.auto \
+  --hidden-import uvicorn.protocols.http.h11_impl \
+  --hidden-import uvicorn.protocols.websockets \
+  --hidden-import uvicorn.protocols.websockets.auto \
+  --hidden-import uvicorn.lifespan \
+  --hidden-import uvicorn.lifespan.on \
+  --hidden-import anyio._backends._asyncio \
+  --hidden-import matplotlib.backends.backend_agg \
+  --collect-all cvxpy \
+  server.py
+
 echo ""
-echo "Done! venv is ready at backend/venv/"
-echo "Run 'npm run dev' to start the app in development mode."
+echo "Done!"
+echo "  venv:       backend/venv/     (for 'npm run dev')"
+echo "  executable: backend/dist/backend/backend  (bundled in 'npm run pack')"
