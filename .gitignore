@@ -13,4 +13,4 @@ backend/**/*.pyc
 dev-data/
 
 # markdown files
-CLAUDE.md
+# CLAUDE.md

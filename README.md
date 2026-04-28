@@ -167,7 +167,9 @@ electron-builder detects the current OS and produces:
 
 The build bundles a self-contained Python executable produced by PyInstaller — end users do **not** need Python installed.
 
-> **Note:** The Python environment must be built on the same OS as the target platform, since packages like numpy and cvxpy include platform-specific compiled extensions. Run `bash scripts/build-python-venv.sh` before `npm run pack` if you haven't already — it creates both the dev venv and the PyInstaller bundle.
+> **Note:** The Python environment must be built on the same OS as the target platform, since packages like numpy and cvxpy include platform-specific compiled extensions. Run the build script before `npm run pack` if you haven't already — it creates both the dev venv and the PyInstaller bundle.
+> - **Linux/macOS:** `bash scripts/build-python-venv.sh`
+> - **Windows (PowerShell):** `.\scripts\build-python-venv.ps1`
 
 ### App icon
 

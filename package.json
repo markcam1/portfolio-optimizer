@@ -18,9 +18,9 @@
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.19",
     "concurrently": "^8.2.2",
-    "electron": "^31.1.0",
-    "electron-builder": "^24.13.3",
-    "electron-vite": "^2.3.0",
+    "electron": "^41.3.0",
+    "electron-builder": "^26.8.1",
+    "electron-vite": "^5.0.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.2"
