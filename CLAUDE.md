@@ -67,7 +67,7 @@ To test the Linux build without reinstalling:
 dist-electron/linux-unpacked/portfolio-optimizer
 
 # Or run the AppImage directly
-"dist-electron/Portfolio Optimizer-0.1.0.AppImage"
+"dist-electron/Portfolio Optimizer-0.1.1.AppImage"
 ```
 
 To test the Windows build without reinstalling:
@@ -127,7 +127,7 @@ Results page reads from Zustand store (no re-fetch needed)
 
 - `backend/server.py` — PyInstaller entry point. Reads port from `sys.argv[1]` and starts uvicorn with the app object directly. Used only in packaged builds; dev mode still invokes uvicorn via `python -m uvicorn`.
 - `backend/main.py` — FastAPI app with CORS `allow_origins=["*"]` (safe: 127.0.0.1 only).
-- `backend/services/optimizer.py` — the only file that touches Riskfolio. `port.mu` shape is `(1, n_assets)` in Riskfolio 7.x — always use `.values.flatten()`. Risk contributions use the MV analytical formula regardless of selected `rm` (pragmatic Phase 1 decision).
+- `backend/services/optimizer.py` — the only file that touches Riskfolio. `port.mu` shape is `(1, n_assets)` in Riskfolio 7.x — always use `.values.flatten()`. Risk contributions use the MV analytical formula regardless of selected `rm` (pragmatic Phase 1 decision). The user-supplied `rf` is an annual rate; it is divided by 252 before passing to `port.optimization()` because Riskfolio expects `rf` in the same frequency as the return series (daily). The annualized `rf` is kept for the Sharpe display metric.
 - `backend/utils/paths.py` — reads `APP_DATA_PATH` env var (set by Electron) for the userData directory. Falls back to `../dev-data/` when running the backend standalone in development.
 - `backend/services/run_store.py` — simple JSON file per run; each file is a full `OptimizationResult` serialized with `model_dump_json()`.
 - `backend/services/pdf_generator.py` — builds the PDF report with `reportlab` (tables, layout) and `matplotlib` (pie + bar charts rendered to PNG and embedded). All table `colWidths` are derived from `_PAGE_W = 7.0 in` and `_CHART_W = 3.9 in` constants — inner tables used inside side-by-side layouts must sum to `_SIDE_W = _PAGE_W - _CHART_W`, not the full page width.
