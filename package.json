@@ -1,6 +1,6 @@
 {
   "name": "portfolio-optimizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Portfolio optimization desktop app powered by Riskfolio-Lib",
   "main": "out/main/index.js",
   "type": "module",
