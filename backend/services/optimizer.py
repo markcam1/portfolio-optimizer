@@ -64,12 +64,15 @@ def run_optimization(
         )
 
     # --- Run optimization ---
+    # Riskfolio expects rf in the same frequency as returns (daily).
+    # The user supplies an annual rate, so convert before passing.
+    rf_daily = req.rf / TRADING_DAYS
     try:
         w_df = port.optimization(
             model="Classic",
             rm=req.rm,
             obj=req.obj,
-            rf=req.rf,
+            rf=rf_daily,
             l=req.l,
             hist=req.hist
         )
