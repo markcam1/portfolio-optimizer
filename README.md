@@ -22,7 +22,7 @@ Upload a portfolio, pick a risk model, and get optimal weights in seconds.
 
 | Layer | Technology |
 |---|---|
-| Shell | Electron 31 |
+| Shell | Electron 41 |
 | Frontend | React 18 + Vite + Tailwind CSS |
 | State | Zustand + React Query |
 | Charts | Recharts |
