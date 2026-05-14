@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import optimize, tickers, runs, export
+from ai.router import router as ai_router
 from utils.paths import ensure_dirs
 from utils.logger import setup_logger
 
@@ -32,6 +33,7 @@ app.include_router(tickers.router, prefix="/api")
 app.include_router(optimize.router, prefix="/api")
 app.include_router(runs.router, prefix="/api")
 app.include_router(export.router, prefix="/api")
+app.include_router(ai_router, prefix="/api")
 
 
 @app.get("/health")

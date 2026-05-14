@@ -99,6 +99,7 @@ Key endpoints:
 - `POST /api/optimize` — fetches returns, runs Riskfolio, persists run JSON, returns full `OptimizationResult`
 - `GET /api/runs` / `GET /api/runs/{id}` — reads saved JSON files from `{userData}/runs/`
 - `POST /api/export/pdf` — generates and streams a PDF report; returns `application/pdf` with a `Content-Disposition: attachment` header
+- `POST /api/ai/analyze` — SSE streaming endpoint; calls Ollama with the run's data, streams chunks as `data: {"t": "..."}` NDJSON, saves the full text into the run JSON on completion
 
 ### State management split
 
@@ -127,10 +128,18 @@ Results page reads from Zustand store (no re-fetch needed)
 
 - `backend/server.py` — PyInstaller entry point. Reads port from `sys.argv[1]` and starts uvicorn with the app object directly. Used only in packaged builds; dev mode still invokes uvicorn via `python -m uvicorn`.
 - `backend/main.py` — FastAPI app with CORS `allow_origins=["*"]` (safe: 127.0.0.1 only).
+- `backend/config.json` — user-editable config for the AI feature: `ollama.base_url` and `ollama.model`. Bundled into packaged builds via the `datas` entry in `backend/backend.spec`. `backend/ai/analyzer.py` reads it at module load time via `sys._MEIPASS` (packaged) or a relative path (dev), with defaults as fallback.
+- `backend/ai/analyzer.py` — builds the portfolio prompt and streams NDJSON from Ollama using `httpx.AsyncClient`. Raises `OllamaUnavailableError` on `ConnectError`, `OllamaModelNotFoundError` on HTTP 404.
+- `backend/ai/router.py` — FastAPI SSE endpoint. Wraps `stream_analysis()` in an async generator that encodes each text chunk as `data: {"t": "..."}`, handles errors with `data: [ERROR] ...` lines, and writes `data: [DONE]` after calling `run_store.save_analysis()` to persist the full text.
 - `backend/services/optimizer.py` — the only file that touches Riskfolio. `port.mu` shape is `(1, n_assets)` in Riskfolio 7.x — always use `.values.flatten()`. Risk contributions use the MV analytical formula regardless of selected `rm` (pragmatic Phase 1 decision). The user-supplied `rf` is an annual rate; it is divided by 252 before passing to `port.optimization()` because Riskfolio expects `rf` in the same frequency as the return series (daily). The annualized `rf` is kept for the Sharpe display metric.
 - `backend/utils/paths.py` — reads `APP_DATA_PATH` env var (set by Electron) for the userData directory. Falls back to `../dev-data/` when running the backend standalone in development.
-- `backend/services/run_store.py` — simple JSON file per run; each file is a full `OptimizationResult` serialized with `model_dump_json()`.
-- `backend/services/pdf_generator.py` — builds the PDF report with `reportlab` (tables, layout) and `matplotlib` (pie + bar charts rendered to PNG and embedded). All table `colWidths` are derived from `_PAGE_W = 7.0 in` and `_CHART_W = 3.9 in` constants — inner tables used inside side-by-side layouts must sum to `_SIDE_W = _PAGE_W - _CHART_W`, not the full page width.
+- `backend/services/run_store.py` — simple JSON file per run; each file is a full `OptimizationResult` serialized with `model_dump_json()`. `save_analysis(run_id, text)` patches `ai_analysis` into an existing run file.
+- `backend/services/pdf_generator.py` — builds the PDF report with `reportlab` (tables, layout) and `matplotlib` (pie + bar charts rendered to PNG and embedded). All table `colWidths` are derived from `_PAGE_W = 7.0 in` and `_CHART_W = 3.9 in` constants — inner tables used inside side-by-side layouts must sum to `_SIDE_W = _PAGE_W - _CHART_W`, not the full page width. If `result.ai_analysis` is set, an "AI Analysis" section is appended with `**bold**` markers converted to ReportLab `<b>` tags (text is XML-escaped first).
+
+### Frontend AI layer
+
+- `src/renderer/src/ai/stream.ts` — `streamAnalysis(runId)` async generator. Fetches the SSE stream from `/api/ai/analyze`, decodes chunks, splits on `data: ` prefix lines, yields text from `{"t": "..."}` payloads, returns on `[DONE]`, throws on `[ERROR]`.
+- `src/renderer/src/ai/AiAnalysis.tsx` — card component rendered on the Results page. Displays saved analysis on load (no auto-call). "Analyze Portfolio" / "Regenerate" button triggers streaming; a blinking cursor is shown while `streaming == true`. Inline `renderMarkdown()` function converts `**...**` to `<strong>` elements so model markdown renders correctly. The `DISPLAY_MODEL` constant (line 6) is a static label — update it manually if you change `config.json`.
 
 ### UI constants
 
@@ -142,6 +151,7 @@ Results page reads from Zustand store (no re-fetch needed)
 ### Key dependency notes
 
 - **Riskfolio-Lib** is installed from PyPI (7.0.1). The local clone at `../Riskfolio-Lib/` requires Python 3.11+ for its latest scipy dependency — use the venv's installed version.
+- **httpx** (`>=0.27.0`) — used by `backend/ai/analyzer.py` for async streaming HTTP calls to Ollama. Must be present in the venv; listed in `backend/requirements.txt`.
 - `electron-vite` compiles `src/main/` and `src/preload/` with `externalizeDepsPlugin()` so Electron built-ins (`electron`, `node:*`) are not bundled. The renderer is a normal Vite/React build.
 - `postcss.config.js` uses `export default` (ESM) — keep `"type": "module"` in `package.json`.
 - **CSP** (`src/renderer/index.html`) — `style-src` must include `https://fonts.googleapis.com` for the Google Fonts `<link>` to load; it is not enough to add it only to `connect-src`.

@@ -9,6 +9,7 @@ import MetricsCards from '../components/results/MetricsCards'
 import WeightsPieChart from '../components/results/WeightsPieChart'
 import WeightsTable from '../components/results/WeightsTable'
 import RiskContributionChart from '../components/results/RiskContributionChart'
+import AiAnalysis from '../ai/AiAnalysis'
 import { InfoTooltip } from '../components/ui/Tooltip'
 import { shortDate, relativeTime } from '../utils/formatters'
 import { RM_MAP } from '../utils/constants'
@@ -121,6 +122,9 @@ export default function Results() {
         </CardHeader>
         <RiskContributionChart contributions={result.risk_contributions} />
       </Card>
+
+      {/* AI Analysis */}
+      <AiAnalysis runId={result.run_id} savedAnalysis={result.ai_analysis} />
 
       {/* Footer note */}
       <p className="text-xs text-slate-600 pb-4">
