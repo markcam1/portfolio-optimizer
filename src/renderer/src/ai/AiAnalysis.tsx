@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import { streamAnalysis } from './stream'
 
-const DISPLAY_MODEL = 'llama3.2'
+interface AiConfig {
+  models: string[]
+  default_model: string
+  allow_frontend_switch: boolean
+}
 
 interface Props {
   runId: string
   savedAnalysis?: string | null
+  savedModel?: string | null
 }
 
 function renderMarkdown(text: string): React.ReactNode {
@@ -19,10 +24,26 @@ function renderMarkdown(text: string): React.ReactNode {
   )
 }
 
-export default function AiAnalysis({ runId, savedAnalysis }: Props) {
+export default function AiAnalysis({ runId, savedAnalysis, savedModel }: Props) {
   const [text, setText] = useState(savedAnalysis ?? '')
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [models, setModels] = useState<string[]>([])
+  const [selectedModel, setSelectedModel] = useState<string>('')
+  const [allowSwitch, setAllowSwitch] = useState(false)
+
+  useEffect(() => {
+    window.electron.getApiUrl().then(apiUrl =>
+      fetch(`${apiUrl}/api/ai/config`)
+        .then(r => r.json())
+        .then((data: AiConfig) => {
+          setModels(data.models)
+          setSelectedModel(data.default_model)
+          setAllowSwitch(data.allow_frontend_switch)
+        })
+        .catch(() => setSelectedModel('Ollama'))
+    )
+  }, [])
 
   const hasAnalysis = text.length > 0
 
@@ -31,7 +52,7 @@ export default function AiAnalysis({ runId, savedAnalysis }: Props) {
     setText('')
     setError(null)
     try {
-      for await (const chunk of streamAnalysis(runId)) {
+      for await (const chunk of streamAnalysis(runId, selectedModel || undefined)) {
         setText(prev => prev + chunk)
       }
     } catch (e) {
@@ -41,23 +62,41 @@ export default function AiAnalysis({ runId, savedAnalysis }: Props) {
     }
   }
 
+  const displayModel = hasAnalysis && savedModel
+    ? savedModel
+    : (selectedModel || '…')
+
+  const showDropdown = allowSwitch && models.length > 1
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <CardTitle>AI Analysis</CardTitle>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={generate}
-            disabled={streaming}
-            loading={streaming}
-          >
-            {streaming ? 'Analyzing…' : hasAnalysis ? 'Regenerate' : 'Analyze Portfolio'}
-          </Button>
+          <div className="flex items-center gap-2">
+            {showDropdown && (
+              <select
+                value={selectedModel}
+                onChange={e => setSelectedModel(e.target.value)}
+                disabled={streaming}
+                className="text-xs bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-300 disabled:opacity-50"
+              >
+                {models.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={generate}
+              disabled={streaming}
+              loading={streaming}
+            >
+              {streaming ? 'Analyzing…' : hasAnalysis ? 'Regenerate' : 'Analyze Portfolio'}
+            </Button>
+          </div>
         </div>
         <p className="text-xs text-slate-500 mt-0.5">
-          Powered by Ollama · {DISPLAY_MODEL} · runs locally
+          Powered by Ollama · {displayModel} · runs locally
         </p>
       </CardHeader>
 

@@ -124,7 +124,7 @@ export default function Results() {
       </Card>
 
       {/* AI Analysis */}
-      <AiAnalysis runId={result.run_id} savedAnalysis={result.ai_analysis} />
+      <AiAnalysis runId={result.run_id} savedAnalysis={result.ai_analysis} savedModel={result.ai_model} />
 
       {/* Footer note */}
       <p className="text-xs text-slate-600 pb-4">

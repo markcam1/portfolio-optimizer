@@ -1,9 +1,9 @@
-export async function* streamAnalysis(runId: string): AsyncGenerator<string> {
+export async function* streamAnalysis(runId: string, model?: string): AsyncGenerator<string> {
   const apiUrl = await window.electron.getApiUrl()
   const response = await fetch(`${apiUrl}/api/ai/analyze`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ run_id: runId }),
+    body: JSON.stringify({ run_id: runId, ...(model ? { model } : {}) }),
   })
 
   if (!response.ok) {

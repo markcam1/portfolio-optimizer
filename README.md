@@ -13,7 +13,7 @@ Upload a portfolio, pick a risk model, and get optimal weights in seconds.
 - **Yahoo Finance data** — enter tickers, pick a date range, and the app fetches price history automatically.
 - **CSV upload** — import your asset list from any brokerage export.
 - **Results dashboard** — optimal weights (pie chart + table), Sharpe ratio, expected return, portfolio risk, and per-asset risk contribution.
-- **AI Analysis** — one-click plain-English commentary on any optimization result, streamed in real time from a local LLM via [Ollama](https://ollama.com). Analysis is saved with the run and included in the PDF report. No data leaves your machine.
+- **AI Analysis** — one-click plain-English commentary on any optimization result, streamed in real time from a local LLM via [Ollama](https://ollama.com). Supports multiple models defined in `backend/config.yaml`; an optional model picker lets you switch models between runs without restarting. Analysis is saved with the run (including which model generated it) and included in the PDF report. No data leaves your machine.
 - **Run history** — every optimization is saved locally as JSON and accessible from the dashboard.
 - **PDF export** — download a full report (metrics, allocation pie chart, weights table, risk contribution chart, AI analysis) directly from the Results page.
 
@@ -44,11 +44,11 @@ The frontend and backend communicate over HTTP on a dynamically assigned localho
 - **Node.js** 18+ — [nodejs.org](https://nodejs.org)
 - **Python** 3.10+ — [python.org](https://www.python.org)
 - **npm** (comes with Node.js)
-- **Ollama** *(optional, for AI Analysis)* — [ollama.com](https://ollama.com). After installing, pull the default model:
+- **Ollama** *(optional, for AI Analysis)* — [ollama.com](https://ollama.com). After installing, pull at least one model:
   ```bash
   ollama pull llama3.1:8b-instruct-q8_0
   ```
-  The model can be changed in `backend/config.json` (`ollama.model`). The AI Analysis feature is skipped gracefully if Ollama is not running.
+  Available models are configured in `backend/config.yaml` (`ollama.models`). Comment or uncomment lines to control which models appear in the app's model picker. The AI Analysis feature is skipped gracefully if Ollama is not running.
 
 ### 1. Install Node dependencies
 
@@ -148,7 +148,7 @@ portfolio-optimizer/
 │       └── utils/     # CSV parser, formatters, constants (RM labels/tooltips)
 ├── backend/
 │   ├── main.py        # FastAPI app
-│   ├── config.json    # Ollama settings (base_url, model) — edit to change LLM
+│   ├── config.yaml    # Ollama settings — base_url, model list, allow_frontend_switch
 │   ├── ai/            # analyzer.py (Ollama streaming), router.py (/api/ai/analyze SSE)
 │   ├── routers/       # /api/optimize, /api/validate-tickers, /api/runs, /api/export/pdf
 │   ├── services/      # optimizer.py (Riskfolio), data_fetcher.py (yfinance), run_store.py

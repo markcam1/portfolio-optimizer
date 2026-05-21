@@ -43,6 +43,7 @@ class OptimizationResult(BaseModel):
     metrics: PortfolioMetrics
     risk_contributions: list[AssetRiskContribution]
     ai_analysis: Optional[str] = None
+    ai_model: Optional[str] = None
 
 
 class RunSummary(BaseModel):

@@ -26,7 +26,7 @@ def load_run(run_id: str) -> OptimizationResult | None:
         return None
 
 
-def save_analysis(run_id: str, text: str) -> None:
+def save_analysis(run_id: str, text: str, model: str = "") -> None:
     path = get_runs_dir() / f"{run_id}.json"
     if not path.exists():
         logger.warning("Cannot save analysis — run %s not found", run_id)
@@ -34,8 +34,9 @@ def save_analysis(run_id: str, text: str) -> None:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         data["ai_analysis"] = text
+        data["ai_model"] = model
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-        logger.info("Saved AI analysis for run %s", run_id)
+        logger.info("Saved AI analysis for run %s (model: %s)", run_id, model)
     except Exception as exc:
         logger.error("Failed to save analysis for run %s: %s", run_id, exc)
 

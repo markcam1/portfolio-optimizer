@@ -61,6 +61,7 @@ export interface OptimizationResult {
   metrics: PortfolioMetrics
   risk_contributions: AssetRiskContribution[]
   ai_analysis?: string | null
+  ai_model?: string | null
 }
 
 export interface RunSummary {
